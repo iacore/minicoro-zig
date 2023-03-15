@@ -1,0 +1,23 @@
+const std = @import("std");
+const testing = std.testing;
+
+export fn add(a: i32, b: i32) i32 {
+    return a + b;
+}
+
+test "basic add functionality" {
+    try testing.expect(add(3, 7) == 10);
+}
+
+test "c testsuite" {
+    const testsuite = @import("c_testsuite.zig");
+    try std.testing.expectEqual(@as(c_int, 0), testsuite.main());
+}
+
+test "minicoro.h is up to date" {
+    const copy = @embedFile("minicoro.h");
+    const orig = @embedFile("minicoro.h.orig");
+    // if this line is hit,
+    // $ cp minicoro/minicoro.h src/
+    try std.testing.expectEqualSlices(u8, orig, copy);
+}
