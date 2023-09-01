@@ -1,4 +1,5 @@
 const std = @import("std");
+const LazyPath = std.Build.LazyPath;
 
 // Although this function looks imperative, note that its job is to
 // declaratively construct a build graph that will be executed by an external
@@ -28,8 +29,8 @@ pub fn build(b: *std.Build) void {
     });
     lib.linkLibC();
     // lib.defineCMacro("MINICORO_IMPL", "1");
-    lib.addCSourceFile("src/minicoro.c", &.{});
-    lib.install();
+    lib.addCSourceFile(.{ .file = LazyPath.relative("src/minicoro.c"), .flags = &.{} });
+    b.installArtifact(lib);
 
     // Creates a step for unit testing.
     const main_tests = b.addTest(.{
@@ -38,7 +39,7 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
     main_tests.linkLibrary(lib);
-    main_tests.addIncludePath("src");
+    main_tests.addIncludePath(LazyPath.relative("src"));
 
     // This creates a build step. It will be visible in the `zig build --help` menu,
     // and can be selected like this: `zig build test`
