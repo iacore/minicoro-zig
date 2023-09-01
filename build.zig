@@ -1,6 +1,14 @@
 const std = @import("std");
 const LazyPath = std.Build.LazyPath;
 
+pub const BuildConfig = struct {
+    zero_memory: ?bool = null,
+    debug: ?bool = null,
+    min_stack_size: ?usize = null,
+    default_storage_size: ?usize = null,
+    default_stack_size: ?usize = null,
+};
+
 // Although this function looks imperative, note that its job is to
 // declaratively construct a build graph that will be executed by an external
 // runner.
@@ -16,6 +24,12 @@ pub fn build(b: *std.Build) void {
     // set a preferred release mode, allowing the user to decide how to optimize.
     const optimize = b.standardOptimizeOption(.{});
 
+    // todo: how to do this?
+    var opts = BuildConfig{};
+    inline for (std.meta.fields(BuildConfig)) |field| {
+        @field(opts, field.name) = b.option(@typeInfo(field.type).Optional.child, "mco_" ++ field.name, "");
+    }
+
     const mod = b.addModule("minicoro", .{
         .source_file = .{ .path = "src/lib.zig" },
     });
@@ -28,7 +42,11 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
     lib.linkLibC();
-    // lib.defineCMacro("MINICORO_IMPL", "1");
+    if (opts.zero_memory) |x| lib.defineCMacro("MCO_ZERO_MEMORY", if (x) "1" else "0");
+    if (opts.debug) |x| lib.defineCMacro("MCO_DEBUG", if (x) "1" else "0");
+    if (opts.min_stack_size) |x| lib.defineCMacro("MCO_MIN_STACK_SIZE", b.fmt("{}", .{x}));
+    if (opts.default_stack_size) |x| lib.defineCMacro("MCO_DEFAULT_STACK_SIZE", b.fmt("{}", .{x}));
+    if (opts.default_storage_size) |x| lib.defineCMacro("MCO_DEFAULT_STORAGE_SIZE", b.fmt("{}", .{x}));
     lib.addCSourceFile(.{ .file = LazyPath.relative("src/minicoro.c"), .flags = &.{} });
     b.installArtifact(lib);
 
