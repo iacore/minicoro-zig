@@ -1,3 +1,5 @@
+Zig bindings of [minicoro](https://github.com/edubart/minicoro)
+
 Tested with Zig 0.11.0
 
 ## Library Behavior
@@ -5,7 +7,7 @@ Tested with Zig 0.11.0
 - each `mco_desc` can have separate malloc/free functions
 - the library itself doesn't allocate
 
-# Supported Feature flags
+## Supported Feature flags
 - MCO_ZERO_MEMORY
 - MCO_DEBUG unless NDEBUG or MCO_NO_DEBUG
 - MCO_MIN_STACK_SIZE
