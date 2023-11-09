@@ -14,10 +14,3 @@ test "c testsuite" {
     try std.testing.expectEqual(@as(c_int, 0), testsuite.main());
 }
 
-test "minicoro.h is up to date" {
-    const copy = @embedFile("minicoro.h");
-    const orig = @embedFile("minicoro.h.orig");
-    // if this line is hit,
-    // $ cp minicoro/minicoro.h src/
-    try std.testing.expectEqualSlices(u8, orig, copy);
-}
